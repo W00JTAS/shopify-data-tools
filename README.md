@@ -92,12 +92,13 @@ w słowniku i nie miały zdjęcia, więc zostały uczciwie oznaczone, nie zgadni
 ## Panel webowy — to samo, w przeglądarce
 
 CLI robi to samo co panel, panel jest wygodniejszy do jednorazowego przejrzenia
-pliku. Lekki FastAPI + vanilla JS, bez frameworka frontendowego, bez stanu na
-serwerze — wynik wraca jako CSV w odpowiedzi, "zapisz lokalnie" to zwykłe
-pobranie pliku przez przeglądarkę.
+pliku. FastAPI (stateless JSON API backend) + React/Tailwind (modern frontend,
+styled to match the author's other panels) — wynik wraca jako CSV w odpowiedzi,
+"zapisz lokalnie" to zwykłe pobranie pliku przez przeglądarkę.
 
 ```bash
 ./.venv/bin/pip install -e ".[web]"
+cd frontend && npm install && npm run build && cd ..
 ./.venv/bin/uvicorn catalog_tools.webapp.main:app --reload
 # → http://localhost:8000
 ```
@@ -111,6 +112,8 @@ sformułowania tego samego produktu trafiają do jednej, wspólnej nazwy, bo mod
 wybiera z ustalonej listy, nie wymyśla za każdym razem od nowa. Wynik **zawsze
 ląduje w edytorze do przejrzenia** — kategoryzacja rusza dopiero po Twoim
 kliknięciu, nigdy automatycznie.
+
+<!-- TODO: re-take screenshots after React panel ships -->
 
 ![Panel: AI proponuje reguły](docs/panel_propose.png)
 
