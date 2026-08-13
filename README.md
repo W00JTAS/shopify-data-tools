@@ -1,4 +1,4 @@
-# Catalog Tools
+# Shopify Data Tools
 
 [![CI](https://github.com/W00JTAS/catalog-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/W00JTAS/catalog-tools/actions/workflows/ci.yml)
 
