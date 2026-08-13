@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalacja
+        run: pip install -e ".[dev]"
+
+      - name: Testy
+        run: pytest -q
+
+      - name: Kategoryzacja demo (bez modelu — sama ścieżka regułowa)
+        run: |
+          catalog-tools categorize \
+            --csv data/sample/products.csv --rules data/sample/rules.json \
+            --out /tmp/categorized.csv
+          catalog-tools consolidate \
+            --csv data/sample/listings.csv --out /tmp/consolidated.csv
