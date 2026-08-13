@@ -21,7 +21,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 from fastapi import FastAPI, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .. import consolidate, pipeline
@@ -30,7 +30,7 @@ from ..rule_proposer import ProposalError, propose_rules
 
 app = FastAPI(title="Catalog Tools")
 
-STATIC_DIR = Path(__file__).resolve().parent / "static"
+FRONTEND_DIST = Path(__file__).resolve().parents[3] / "frontend" / "dist"
 
 
 def _read_csv(file: UploadFile, sep: str) -> pd.DataFrame:
@@ -136,9 +136,17 @@ async def health():
         return JSONResponse({"ollama": False, "model": DEFAULT_MODEL}, status_code=200)
 
 
-@app.get("/")
-async def index():
-    return FileResponse(STATIC_DIR / "index.html")
+if FRONTEND_DIST.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
+else:
 
-
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    @app.get("/")
+    async def frontend_missing():
+        return JSONResponse(
+            {
+                "detail": (
+                    "Catalog Tools — frontend nie jest zbudowany. Uruchom "
+                    "`cd frontend && npm install && npm run build`, potem odśwież."
+                )
+            },
+        )
