@@ -19,7 +19,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from . import consolidate
+from . import consolidate, pipeline
 from .llm_fallback import OllamaClassifier, ResponseCache
 from .rules import categories_from_rules, find_category
 
@@ -35,29 +35,18 @@ def cmd_categorize(args: argparse.Namespace) -> int:
         print(f"Brak kolumny {args.column!r}. Dostępne: {list(frame.columns)}", file=sys.stderr)
         return 2
 
-    classifier = None
-    if args.use_llm:
-        classifier = OllamaClassifier(categories=categories_from_rules(rules), cache=ResponseCache())
+    cache = ResponseCache() if args.use_llm else None
+    result, summary = pipeline.categorize_frame(frame, args.column, rules, use_llm=args.use_llm, cache=cache)
+    if cache:
+        cache.close()
 
-    matched = via_llm = unresolved = 0
-    out_categories: list[str | None] = []
-    for source in frame[args.column].fillna(""):
-        match = find_category(str(source), rules)
-        if match:
-            out_categories.append(match.target_category)
-            matched += 1
-            continue
-        target = classifier.classify(str(source)) if classifier else None
-        out_categories.append(target)
-        if target:
-            via_llm += 1
-        else:
-            unresolved += 1
-
-    frame["kategoria_docelowa"] = out_categories
-    frame.to_csv(args.out, index=False)
-    total = len(frame)
-    print(f"reguły: {matched}/{total}   model: {via_llm}/{total}   nierozpoznane: {unresolved}/{total}")
+    result.to_csv(args.out, index=False)
+    t = summary["total"]
+    print(
+        f"reguły: {summary['matched_by_rules']}/{t}   "
+        f"model: {summary['matched_by_llm']}/{t}   "
+        f"nierozpoznane: {summary['unresolved']}/{t}"
+    )
     print(f"zapisano: {args.out}")
     return 0
 
@@ -78,10 +67,7 @@ def cmd_consolidate(args: argparse.Namespace) -> int:
     result = consolidate.consolidate(rows, image_fetcher=fetcher)
 
     with open(args.out, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Handle", "Title", "Option1 Name", "Option1 Value", "Variant SKU", "Variant Price", "Image Src"])
-        for r in result.rows:
-            writer.writerow([r.handle, r.title, r.option_name, r.option_value, r.sku, r.price, r.image_src])
+        f.write(pipeline.consolidated_rows_to_csv(result.rows))
 
     print(f"skonsolidowano grup: {result.groups_consolidated}   pojedynczych: {result.groups_passthrough}")
     if result.unresolved:
