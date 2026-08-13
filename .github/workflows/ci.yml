@@ -30,3 +30,10 @@ jobs:
             --out /tmp/categorized.csv
           catalog-tools consolidate \
             --csv data/sample/listings.csv --out /tmp/consolidated.csv
+
+      - name: Panel wstaje i odpowiada
+        run: |
+          uvicorn catalog_tools.webapp.main:app --app-dir src --port 8420 &
+          sleep 2
+          curl -sf http://localhost:8420/ > /dev/null
+          curl -sf http://localhost:8420/api/health > /dev/null
