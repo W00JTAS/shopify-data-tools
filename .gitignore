@@ -5,3 +5,4 @@ __pycache__/
 *.egg-info/
 data/out/
 data/llm_cache.sqlite
+.worktrees/
