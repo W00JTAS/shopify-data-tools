@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import csv
 import io
+from collections import Counter
 
 import pandas as pd
 
@@ -32,27 +33,34 @@ def categorize_frame(
         )
 
     matched = via_llm = unresolved = 0
+    unresolved_counts: Counter[str] = Counter()
     out: list[str | None] = []
     for source in frame[column].fillna(""):
-        match = find_category(str(source), rules)
+        source = str(source)
+        match = find_category(source, rules)
         if match:
             out.append(match.target_category)
             matched += 1
             continue
-        target = classifier.classify(str(source)) if classifier else None
+        target = classifier.classify(source) if classifier else None
         out.append(target)
         if target:
             via_llm += 1
         else:
             unresolved += 1
+            unresolved_counts[source] += 1
 
     result = frame.copy()
     result["kategoria_docelowa"] = out
+    unresolved_categories = [
+        {"source": source, "count": count} for source, count in unresolved_counts.most_common(100)
+    ]
     summary = {
         "total": len(frame),
         "matched_by_rules": matched,
         "matched_by_llm": via_llm,
         "unresolved": unresolved,
+        "unresolved_categories": unresolved_categories,
     }
     return result, summary
 

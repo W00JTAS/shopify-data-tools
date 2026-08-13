@@ -64,6 +64,7 @@ class TestCategorizeRun:
         assert data["summary"]["matched_by_rules"] == 1
         assert data["summary"]["unresolved"] == 1
         assert "Audio" in data["csv"]
+        assert data["summary"]["unresolved_categories"] == [{"source": "coś innego", "count": 1}]
 
     def test_brakujaca_kolumna_daje_400(self):
         res = client.post(
