@@ -10,7 +10,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+web = ["fastapi>=0.115", "uvicorn[standard]>=0.32", "python-multipart>=0.0.9"]
+# dev zawiera web: testy panelu (tests/test_webapp.py) importują fastapi.
+dev = ["pytest>=8.0", "httpx>=0.27", "fastapi>=0.115", "uvicorn[standard]>=0.32", "python-multipart>=0.0.9"]
 
 [project.scripts]
 catalog-tools = "catalog_tools.cli:main"
