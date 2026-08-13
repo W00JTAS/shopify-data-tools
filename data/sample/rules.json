@@ -1,0 +1,17 @@
+{
+  "wymagane_konteksty": {},
+  "mapowanie": {
+    "Elektronika > Audio > Słuchawki Bezprzewodowe": ["słuchawki bluetooth", "słuchawki bezprzewodowe"],
+    "Elektronika > Audio > Słuchawki Przewodowe": ["słuchawki przewodowe", "słuchawki jack"],
+    "Elektronika > Ładowanie > Powerbanki": ["powerbank", "power bank"],
+    "Elektronika > Ładowanie > Kable i Adaptery": ["kabel usb", "kabel ładujący", "adapter zasilania"],
+    "Elektronika > Akcesoria GSM > Etui i Pokrowce": ["etui na telefon", "pokrowiec na telefon", "case ochronny"],
+    "Elektronika > Akcesoria GSM > Szkła Ochronne": ["szkło hartowane", "folia ochronna"],
+    "Dom > Oświetlenie > Lampki Dekoracyjne": ["lampka choinkowa", "girlanda świetlna"],
+    "Dom > Kuchnia > Organizery": ["organizer kuchenny", "pojemnik na przyprawy"],
+    "Ogród > Narzędzia > Podlewanie": ["wąż ogrodowy", "zraszacz"],
+    "Sport > Fitness > Akcesoria Treningowe": ["mata do jogi", "gumy oporowe", "skakanka"],
+    "Biuro > Akcesoria > Podkładki i Podstawki": ["podkładka pod mysz", "podstawka pod laptop"],
+    "Zabawki > Klocki > Zestawy Konstrukcyjne": ["klocki konstrukcyjne", "zestaw klocków"]
+  }
+}
