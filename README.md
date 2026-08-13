@@ -113,14 +113,15 @@ wybiera z ustalonej listy, nie wymyśla za każdym razem od nowa. Wynik **zawsze
 ląduje w edytorze do przejrzenia** — kategoryzacja rusza dopiero po Twoim
 kliknięciu, nigdy automatycznie.
 
-<!-- TODO: re-take all three screenshots below after React panel ships -->
-
 ![Panel: AI proponuje reguły](docs/panel_propose.png)
 
-Na przykładzie z sześcioma kategoriami: model poprawnie połączył „etui na
-telefon” i „obudowy ochronne na smartfon” pod jedną nazwą, i uczciwie zostawił
-bez propozycji kategorię, która nie pasowała do żadnej z trzech pozostałych —
-zamiast wcisnąć ją na siłę gdziekolwiek.
+Zrzuty poniżej pochodzą z realnego uruchomienia panelu (React) na syntetycznym
+katalogu demonstracyjnym (`data/sample/products.csv`, 156 wierszy) — te same
+liczby co w przykładzie CLI wyżej (66/156 reguły, 90/156 nierozpoznane).
+Widoczna jest **lista nierozpoznanych kategorii źródłowych** pod statystykami —
+dokładnie ta funkcja, której wcześniej brakowało: wcześniej panel pokazywał
+tylko liczbę nierozpoznanych, teraz pokazuje wprost, co dopisać do
+`mapowanie` w JSON-ie.
 
 ![Panel: wynik kategoryzacji](docs/panel_categorize.png)
 
