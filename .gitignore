@@ -6,3 +6,5 @@ __pycache__/
 data/out/
 data/llm_cache.sqlite
 .worktrees/
+frontend/node_modules/
+frontend/dist/
