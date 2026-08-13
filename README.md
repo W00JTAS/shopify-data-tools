@@ -92,7 +92,7 @@ w słowniku i nie miały zdjęcia, więc zostały uczciwie oznaczone, nie zgadni
 ## Panel webowy — to samo, w przeglądarce
 
 CLI robi to samo co panel, panel jest wygodniejszy do jednorazowego przejrzenia
-pliku. FastAPI (stateless JSON API backend) + React/Tailwind (modern frontend,
+pliku. FastAPI (stateless JSON API backend) + Vite + React + TypeScript + Tailwind (modern frontend,
 styled to match the author's other panels) — wynik wraca jako CSV w odpowiedzi,
 "zapisz lokalnie" to zwykłe pobranie pliku przez przeglądarkę.
 
@@ -113,7 +113,7 @@ wybiera z ustalonej listy, nie wymyśla za każdym razem od nowa. Wynik **zawsze
 ląduje w edytorze do przejrzenia** — kategoryzacja rusza dopiero po Twoim
 kliknięciu, nigdy automatycznie.
 
-<!-- TODO: re-take screenshots after React panel ships -->
+<!-- TODO: re-take all three screenshots below after React panel ships -->
 
 ![Panel: AI proponuje reguły](docs/panel_propose.png)
 
