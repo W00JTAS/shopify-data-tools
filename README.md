@@ -89,6 +89,40 @@ Token, którego nie rozwiąże ani jedno, ani drugie, **trafia do raportu jako
 nierozpoznany** — zamiast dostać zmyśloną wartość. "Grafit" i "Burgund" nie są
 w słowniku i nie miały zdjęcia, więc zostały uczciwie oznaczone, nie zgadnięte.
 
+## Panel webowy — to samo, w przeglądarce
+
+CLI robi to samo co panel, panel jest wygodniejszy do jednorazowego przejrzenia
+pliku. Lekki FastAPI + vanilla JS, bez frameworka frontendowego, bez stanu na
+serwerze — wynik wraca jako CSV w odpowiedzi, "zapisz lokalnie" to zwykłe
+pobranie pliku przez przeglądarkę.
+
+```bash
+./.venv/bin/pip install -e ".[web]"
+./.venv/bin/uvicorn catalog_tools.webapp.main:app --reload
+# → http://localhost:8000
+```
+
+**AI proponuje reguły** — przycisk w zakładce Kategoryzacja. Dwuetapowo, nie
+jednym wywołaniem: model najpierw proponuje krótką listę nazw kategorii
+docelowych, potem klasyfikuje każdą kategorię źródłową do tej listy tym samym
+`OllamaClassifier`, który już odrzuca odpowiedzi spoza zamkniętej listy w
+zwykłej kategoryzacji. Grupowanie wychodzi z tego mechanizmu za darmo — różne
+sformułowania tego samego produktu trafiają do jednej, wspólnej nazwy, bo model
+wybiera z ustalonej listy, nie wymyśla za każdym razem od nowa. Wynik **zawsze
+ląduje w edytorze do przejrzenia** — kategoryzacja rusza dopiero po Twoim
+kliknięciu, nigdy automatycznie.
+
+![Panel: AI proponuje reguły](docs/panel_propose.png)
+
+Na przykładzie z sześcioma kategoriami: model poprawnie połączył „etui na
+telefon” i „obudowy ochronne na smartfon” pod jedną nazwą, i uczciwie zostawił
+bez propozycji kategorię, która nie pasowała do żadnej z trzech pozostałych —
+zamiast wcisnąć ją na siłę gdziekolwiek.
+
+![Panel: wynik kategoryzacji](docs/panel_categorize.png)
+
+![Panel: konsolidacja wariantów](docs/panel_consolidate.png)
+
 ## Instalacja
 
 ```bash
@@ -121,15 +155,18 @@ wysyłania danych katalogu na zewnątrz. Inny model: `OllamaClassifier(model="..
 |---|---|
 | `src/catalog_tools/rules.py` | silnik reguł: dopasowanie po sufiksie, opcjonalny wymagany kontekst |
 | `src/catalog_tools/llm_fallback.py` | klasyfikator na lokalnym modelu, zamknięta lista, cache SQLite |
+| `src/catalog_tools/rule_proposer.py` | AI proponuje reguły: nazwij kategorie, potem sklasyfikuj do nich (reużywa `llm_fallback`) |
 | `src/catalog_tools/colors.py` | rozpoznawanie koloru: słownik → dominujący kolor ze zdjęcia |
 | `src/catalog_tools/consolidate.py` | grupowanie wariantów po tytule, budowa wyjścia w formacie Shopify |
+| `src/catalog_tools/pipeline.py` | wspólna logika kategoryzacji/eksportu — jedno miejsce prawdy dla CLI i panelu |
 | `src/catalog_tools/cli.py` | `categorize` / `consolidate` / `benchmark` |
+| `src/catalog_tools/webapp/` | panel FastAPI + statyczny frontend (vanilla JS) |
 | `data/sample/` | syntetyczny katalog demonstracyjny — generyczne kategorie (elektronika, dom, ogród, sport, biuro, zabawki), żadnych prawdziwych danych klientów |
 
 ## Testy
 
 ```bash
-./.venv/bin/python -m pytest -q   # 56 testów, bez sieci i bez modelu
+./.venv/bin/python -m pytest -q   # 80 testów, bez sieci i bez modelu
 ```
 
 `categorize --use-llm` i `benchmark` wymagają działającej Ollamy i nie są częścią
