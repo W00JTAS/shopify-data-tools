@@ -20,15 +20,13 @@ export function CategorizeTab() {
   const [busy, setBusy] = useState<'preview' | 'propose' | 'run' | null>(null)
   const [error, setError] = useState('')
   const [result, setResult] = useState<CategorizeRunResponse | null>(null)
+  const [proposeSummary, setProposeSummary] = useState('')
 
-  async function handleFile(f: File | null) {
-    setFile(f)
-    setResult(null)
-    if (!f) return
+  async function loadPreview(f: File, sepValue: string) {
     setBusy('preview')
     setError('')
     try {
-      const data = await fetchPreview(f, sep)
+      const data = await fetchPreview(f, sepValue)
       setColumns(data.columns)
       if (data.columns.includes('kategoria')) setColumn('kategoria')
       else if (data.columns.length) setColumn(data.columns[0])
@@ -40,6 +38,18 @@ export function CategorizeTab() {
     }
   }
 
+  async function handleFile(f: File | null) {
+    setFile(f)
+    setResult(null)
+    if (!f) return
+    await loadPreview(f, sep)
+  }
+
+  function handleSepChange(value: string) {
+    setSep(value)
+    if (file) loadPreview(file, value)
+  }
+
   async function handlePropose() {
     if (!file) return setError('Wybierz najpierw plik CSV.')
     setBusy('propose')
@@ -47,6 +57,12 @@ export function CategorizeTab() {
     try {
       const data = await proposeRules(file, column, sep, targetCount)
       setRulesJson(JSON.stringify(data.rules, null, 2))
+      setProposeSummary(
+        `${data.unique_categories} unikalnych kategorii → ${data.target_categories} grup. ` +
+          (data.unmapped.length
+            ? `Bez propozycji (${data.unmapped.length}): ${data.unmapped.slice(0, 5).join(', ')}${data.unmapped.length > 5 ? '…' : ''}`
+            : 'wszystkie przypisane.'),
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Nie udało się zaproponować reguł.')
     } finally {
@@ -84,7 +100,7 @@ export function CategorizeTab() {
             <input
               className="border border-line bg-bg px-2 py-1.5 text-sm"
               value={sep}
-              onChange={(e) => setSep(e.target.value)}
+              onChange={(e) => handleSepChange(e.target.value)}
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -112,21 +128,28 @@ export function CategorizeTab() {
         </div>
 
         {mode === 'ai' && (
-          <div className="mb-4 flex items-end gap-3">
-            <label className="flex flex-col gap-1 text-sm w-28">
-              <span className="text-mutedfg">Ile grup</span>
-              <input
-                type="number"
-                min={2}
-                max={60}
-                className="border border-line bg-bg px-2 py-1.5 text-sm"
-                value={targetCount}
-                onChange={(e) => setTargetCount(Number(e.target.value))}
-              />
-            </label>
-            <Button variant="secondary" disabled={busy === 'propose'} onClick={handlePropose}>
-              {busy === 'propose' ? 'Proponuję…' : 'Zaproponuj reguły'}
-            </Button>
+          <div className="mb-4">
+            <div className="flex items-end gap-3">
+              <label className="flex flex-col gap-1 text-sm w-28">
+                <span className="text-mutedfg">Ile grup</span>
+                <input
+                  type="number"
+                  min={2}
+                  max={60}
+                  className="border border-line bg-bg px-2 py-1.5 text-sm"
+                  value={targetCount}
+                  onChange={(e) => setTargetCount(Number(e.target.value))}
+                />
+              </label>
+              <Button variant="secondary" disabled={busy === 'propose'} onClick={handlePropose}>
+                {busy === 'propose' ? 'Proponuję…' : 'Zaproponuj reguły'}
+              </Button>
+            </div>
+            <p className="text-xs text-mutedfg mb-2 mt-2">
+              Model proponuje szkic — przejrzyj i popraw w polu niżej przed uruchomieniem. Może potrwać do kilku minut
+              przy dużych katalogach.
+            </p>
+            {proposeSummary && <p className="text-xs text-mutedfg mt-2">{proposeSummary}</p>}
           </div>
         )}
 
@@ -138,6 +161,17 @@ export function CategorizeTab() {
             onChange={(e) => setRulesJson(e.target.value)}
           />
         </label>
+
+        <div className="mt-3">
+          <FileField
+            label="…albo wczytaj plik reguł"
+            accept=".json"
+            onChange={(f) => {
+              if (!f) return
+              f.text().then((text) => setRulesJson(text))
+            }}
+          />
+        </div>
 
         <label className="flex items-center gap-2 text-sm mt-3">
           <input type="checkbox" checked={useLlm} onChange={(e) => setUseLlm(e.target.checked)} />
@@ -168,7 +202,7 @@ export function CategorizeTab() {
                 <ul className="text-sm font-mono max-h-48 overflow-y-auto">
                   {result.summary.unresolved_categories.map((u) => (
                     <li key={u.source} className="flex justify-between border-b border-line py-1 last:border-0">
-                      <span>{u.source}</span>
+                      <span>{u.source || '(pusta wartość)'}</span>
                       <span className="text-mutedfg">{u.count}×</span>
                     </li>
                   ))}

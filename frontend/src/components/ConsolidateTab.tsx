@@ -61,8 +61,8 @@ export function ConsolidateTab() {
 
           {result.unresolved.length > 0 && (
             <ul className="mt-4 text-sm font-mono border border-line p-3 max-h-48 overflow-y-auto">
-              {result.unresolved.map((u) => (
-                <li key={u} className="border-b border-line py-1 last:border-0">
+              {result.unresolved.map((u, i) => (
+                <li key={`${u}-${i}`} className="border-b border-line py-1 last:border-0">
                   {u}
                 </li>
               ))}
