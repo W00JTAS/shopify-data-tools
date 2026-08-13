@@ -1,0 +1,27 @@
+[project]
+name = "catalog-tools"
+version = "0.1.0"
+description = "Kategoryzacja i konsolidacja wariantów katalogu produktowego — silnik reguł, lokalny LLM jako fallback, rozpoznawanie koloru z tekstu i zdjęcia"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "pillow>=10.0",
+    "requests>=2.32",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+catalog-tools = "catalog_tools.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
